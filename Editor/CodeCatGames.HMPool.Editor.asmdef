@@ -1,0 +1,18 @@
+{
+    "name": "CodeCatGames.HMPool.Editor",
+    "rootNamespace": "CodeCatGames.HMPool.Editor",
+    "references": [
+        "GUID:cb3a860032072aa47a354215a0064745"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
