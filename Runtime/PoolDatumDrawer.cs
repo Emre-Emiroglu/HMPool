@@ -7,6 +7,10 @@ using UnityEngine;
 
 namespace CodeCatGames.HMPool.Runtime
 {
+    /// <summary>
+    /// Custom property drawer for the PoolDatum structure in the Unity Editor.
+    /// This drawer customizes how the fields of PoolDatum are displayed in the Inspector.
+    /// </summary>
     [CustomPropertyDrawer(typeof(PoolDatum))]
     public sealed class PoolDatumDrawer : PropertyDrawer
     {
