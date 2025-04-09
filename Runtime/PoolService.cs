@@ -22,207 +22,61 @@ namespace CodeCatGames.HMPool.Runtime
         public PoolService(PoolConfig config) => _config = config;
         #endregion
 
-        #region Executes
+        #region Core
         public void Initialize()
         {
 	        CreateDontDestroyOnLoadParent();
-	        InitializePools();
+	        InitializeAllPools();
         }
+        #endregion
+
+        #region Executes
+        public T GetMono<T>() where T : MonoBehaviour, IPoolable => GetPool<MonoPool<T>, T>(_monoPools).Get();
+        public T GetPure<T>() where T : class, IPoolable => GetPool<PurePool<T>, T>(_purePools).Get();
+        public void ReleaseMono<T>(T obj) where T : MonoBehaviour, IPoolable => GetPool<MonoPool<T>, T>(_monoPools).Release(obj);
+        public void ReleasePure<T>(T obj) where T : class, IPoolable => GetPool<PurePool<T>, T>(_purePools).Release(obj);
+        public void DestroyMono<T>(T obj) where T : MonoBehaviour, IPoolable => GetPool<MonoPool<T>, T>(_monoPools).Destroy(obj);
+        public void DestroyPure<T>(T obj) where T : class, IPoolable => GetPool<PurePool<T>, T>(_purePools).Destroy(obj);
+        public void ReleaseAllMono<T>() where T : MonoBehaviour, IPoolable => GetPool<MonoPool<T>, T>(_monoPools).ReleaseAll();
+        public void ReleaseAllPure<T>() where T : class, IPoolable => GetPool<PurePool<T>, T>(_purePools).ReleaseAll();
+        public void DestroyAllMono<T>() where T : MonoBehaviour, IPoolable => GetPool<MonoPool<T>, T>(_monoPools).DestroyAll();
+        public void DestroyAllPure<T>() where T : class, IPoolable => GetPool<PurePool<T>, T>(_purePools).DestroyAll();
         private void CreateDontDestroyOnLoadParent()
         {
             _poolParent = new GameObject("PoolParent").transform;
             
             Object.DontDestroyOnLoad(_poolParent);
         }
-        private void InitializePools()
+        private void InitializeAllPools()
         {
-	        foreach (PoolDatum poolDatum in _config.PoolData)
-		        CreatePool(poolDatum, poolDatum.IsMono ? typeof(MonoPool<>) : typeof(PurePool<>),
-			        poolDatum.IsMono ? _monoPools : _purePools);
+	        foreach (var datum in _config.PoolData)
+	        {
+		        Type poolType = datum.IsMono ? typeof(MonoPool<>) : typeof(PurePool<>);
+		        Dictionary<Type, object> poolDict = datum.IsMono ? _monoPools : _purePools;
+		        object poolInstance = CreatePoolInstance(poolType, datum, datum.IsMono ? _poolParent : null);
+
+		        poolDict[datum.ClassType] = poolInstance;
+	        }
         }
-        private void CreatePool(PoolDatum poolDatum, Type poolBaseType, Dictionary<Type, object> poolDictionary,
-	        Transform parent = null)
+        private object CreatePoolInstance(Type baseType, PoolDatum datum, Transform parent = null)
         {
-	        Type poolType = poolBaseType.MakeGenericType(poolDatum.ClassType);
-
-	        object[] parameters = parent != null ? new object[] { poolDatum, parent } : new object[] { poolDatum };
-
-	        object pool = Activator.CreateInstance(poolType, parameters);
-    
-	        poolDictionary[poolDatum.ClassType] = pool;
+	        Type genericType = baseType.MakeGenericType(datum.ClassType);
+	        object[] parameters = parent != null ? new object[] { datum, parent } : new object[] { datum };
+	        
+	        return Activator.CreateInstance(genericType, parameters);
         }
-        public T GetMono<T>() where T : MonoBehaviour, IPoolable
-		{
-			if (!_monoPools.TryGetValue(typeof(T), out object poolObj))
-				PoolServiceUtilities.ThrowNoPoolFoundException<T>();
-			
-			MonoPool<T> pool = poolObj as MonoPool<T>;
-			
-			Assert.IsNotNull(pool, "Pool object is null.");
+        private TPool GetPool<TPool, T>(Dictionary<Type, object> poolDict)
+	        where TPool : PoolBase<T> where T : class, IPoolable
+        {
+	        if (!poolDict.TryGetValue(typeof(T), out object poolObj))
+		        PoolServiceUtilities.ThrowNoPoolFoundException<T>();
 
-			return pool.Get();
-		}
-		public T GetPure<T>() where T : class, IPoolable
-		{
-			if (!_purePools.TryGetValue(typeof(T), out object poolObj))
-				PoolServiceUtilities.ThrowNoPoolFoundException<T>();
-			
-			PurePool<T> pool = poolObj as PurePool<T>;
-			
-			Assert.IsNotNull(pool, "Pool object is null.");
+	        TPool pool = poolObj as TPool;
 
-			return pool.Get();
-		}
-		public void ReleaseMono<T>(T obj) where T : MonoBehaviour, IPoolable
-		{
-			if (!_monoPools.TryGetValue(typeof(T), out object poolObj))
-				PoolServiceUtilities.LogNoPoolFoundError<T>();
-			else
-			{
-				MonoPool<T> pool = poolObj as MonoPool<T>;
+	        Assert.IsNotNull(pool, "Pool object is null.");
 
-				Assert.IsNotNull(pool, "Pool object is null.");
-
-				pool.Release(obj);
-			}
-		}
-		public void ReleasePure<T>(T obj) where T : class, IPoolable
-		{
-			if (!_purePools.TryGetValue(typeof(T), out object poolObj))
-				PoolServiceUtilities.LogNoPoolFoundError<T>();
-			else
-			{
-				PurePool<T> pool = poolObj as PurePool<T>;
-
-				Assert.IsNotNull(pool, "Pool object is null.");
-
-				pool.Release(obj);
-			}
-		}
-		public void DestroyMono<T>(T obj) where T : MonoBehaviour, IPoolable
-		{
-			if (!_monoPools.TryGetValue(typeof(T), out object poolObj))
-				PoolServiceUtilities.LogNoPoolFoundError<T>();
-			else
-			{
-				MonoPool<T> pool = poolObj as MonoPool<T>;
-				
-				Assert.IsNotNull(pool, "Pool object is null.");
-				
-				pool.Destroy(obj);
-			}
-		}
-		public void DestroyPure<T>(T obj) where T : class, IPoolable
-		{
-			if (!_purePools.TryGetValue(typeof(T), out object poolObj))
-				PoolServiceUtilities.LogNoPoolFoundError<T>();
-			else
-			{
-				PurePool<T> pool = poolObj as PurePool<T>;
-				
-				Assert.IsNotNull(pool, "Pool object is null.");
-				
-				pool.Destroy(obj);
-			}
-		}
-		public void ReleaseAllMono<T>() where T : MonoBehaviour, IPoolable
-		{
-			if (!_monoPools.TryGetValue(typeof(T), out object poolObj))
-				PoolServiceUtilities.LogNoPoolFoundError<T>();
-			else
-			{
-				MonoPool<T> pool = poolObj as MonoPool<T>;
-
-				Assert.IsNotNull(pool, "Pool object is null.");
-
-				pool.ReleaseAll();
-			}
-		}
-		public void ReleaseAllPure<T>() where T : class, IPoolable
-		{
-			if (!_purePools.TryGetValue(typeof(T), out object poolObj))
-				PoolServiceUtilities.LogNoPoolFoundError<T>();
-			else
-			{
-				PurePool<T> pool = poolObj as PurePool<T>;
-
-				Assert.IsNotNull(pool, "Pool object is null.");
-
-				pool.ReleaseAll();
-			}
-		}
-		public void DestroyAllMono<T>() where T : MonoBehaviour, IPoolable
-		{
-			if (!_monoPools.TryGetValue(typeof(T), out object poolObj))
-				PoolServiceUtilities.LogNoPoolFoundError<T>();
-			else
-			{
-				MonoPool<T> pool = poolObj as MonoPool<T>;
-
-				Assert.IsNotNull(pool, "Pool object is null.");
-
-				pool.DestroyAll();
-			}
-		}
-		public void DestroyAllPure<T>() where T : class, IPoolable
-		{
-			if (!_purePools.TryGetValue(typeof(T), out object poolObj))
-				PoolServiceUtilities.LogNoPoolFoundError<T>();
-			else
-			{
-				PurePool<T> pool = poolObj as PurePool<T>;
-
-				Assert.IsNotNull(pool, "Pool object is null.");
-
-				pool.DestroyAll();
-			}
-		}
+	        return pool;
+        }
         #endregion
-    }
-    
-    public class TestOne : PurePoolable
-    {
-	    public override void OnCreated()
-	    {
-		    throw new NotImplementedException();
-	    }
-
-	    public override void OnGetFromPool()
-	    {
-		    throw new NotImplementedException();
-	    }
-
-	    public override void OnReturnToPool()
-	    {
-		    throw new NotImplementedException();
-	    }
-
-	    public override void OnDestroyed()
-	    {
-		    throw new NotImplementedException();
-	    }
-    }
-    
-    public class TestTwo : MonoPoolable
-    {
-	    public override void OnCreated()
-	    {
-		    throw new NotImplementedException();
-	    }
-
-	    public override void OnGetFromPool()
-	    {
-		    throw new NotImplementedException();
-	    }
-
-	    public override void OnReturnToPool()
-	    {
-		    throw new NotImplementedException();
-	    }
-
-	    public override void OnDestroyed()
-	    {
-		    throw new NotImplementedException();
-	    }
     }
 }

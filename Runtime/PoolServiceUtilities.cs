@@ -7,7 +7,6 @@ namespace CodeCatGames.HMPool.Runtime
     {
         #region Fields
         private static PoolService _poolService;
-        private static bool _isInitialized;
         #endregion
 
         #region Core
@@ -30,9 +29,9 @@ namespace CodeCatGames.HMPool.Runtime
 		public static void ReleaseAllPure<T>() where T : class, IPoolable => _poolService.ReleaseAllPure<T>();
 		public static void DestroyAllMono<T>() where T : MonoBehaviour, IPoolable => _poolService.DestroyAllMono<T>();
 		public static void DestroyAllPure<T>() where T : class, IPoolable => _poolService.DestroyAllPure<T>();
-		public static void ThrowNoPoolFoundException<T>() where T : class, IPoolable =>
+		public static void ThrowNoPoolFoundException<T>() where T : IPoolable =>
 			throw new InvalidOperationException($"No pool found for type {typeof(T)}.");
-		public static void LogNoPoolFoundError<T>() where T : class, IPoolable =>
+		public static void LogNoPoolFoundError<T>() where T : IPoolable =>
 			Debug.LogError($"No pool found for type {typeof(T)}.");
 		#endregion
     }

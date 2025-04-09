@@ -16,15 +16,32 @@ namespace CodeCatGames.HMPool.Runtime
         [SerializeField] private int maximumSize;
         #endregion
 
-        #region Getters
-        public bool IsMono => isMono;
-        public GameObject MonoPrefab => monoPrefab;
-        public int InitialSize => initialSize;
-        public int DefaultCapacity => defaultCapacity;
-        public int MaximumSize => maximumSize;
-        #endregion
-
         #region Properities
+        public bool IsMono
+        {
+            get => isMono;
+            set => isMono = value;
+        }
+        public GameObject MonoPrefab
+        {
+            get => monoPrefab;
+            set => monoPrefab = value;
+        }
+        public int InitialSize
+        {
+            get => initialSize;
+            set => initialSize = value;
+        }
+        public int DefaultCapacity
+        {
+            get => defaultCapacity;
+            set => defaultCapacity = value;
+        }
+        public int MaximumSize
+        {
+            get => maximumSize;
+            set => maximumSize = value;
+        }
         public Type ClassType
         {
             get => Type.GetType(classTypeName);

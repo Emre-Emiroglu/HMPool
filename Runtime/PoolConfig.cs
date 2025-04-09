@@ -10,8 +10,12 @@ namespace CodeCatGames.HMPool.Runtime
         [SerializeField] private PoolDatum[] poolData;
         #endregion
 
-        #region Getters
-        public PoolDatum[] PoolData => poolData;
+        #region Properities
+        public PoolDatum[] PoolData
+        {
+            get => poolData;
+            set => poolData = value;
+        }
         #endregion
     }
 }
