@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace CodeCatGames.HMPool.Runtime
 {
@@ -8,11 +7,11 @@ namespace CodeCatGames.HMPool.Runtime
     {
         #region Fields
         [Header("Pool Config Fields")]
-        [SerializeField] private List<PoolDatum> poolData;
+        [SerializeField] private PoolDatum[] poolData;
         #endregion
 
         #region Getters
-        public List<PoolDatum> PoolData => poolData;
+        public PoolDatum[] PoolData => poolData;
         #endregion
     }
 }

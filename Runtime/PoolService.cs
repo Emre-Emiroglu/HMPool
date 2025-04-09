@@ -36,19 +36,9 @@ namespace CodeCatGames.HMPool.Runtime
         }
         private void InitializePools()
         {
-            foreach (PoolDatum poolDatum in _config.PoolData)
-            {
-                if (poolDatum.IsMono)
-                {
-                    if (poolDatum.MonoPrefab)
-                        CreatePool(poolDatum, typeof(MonoPool<>), _monoPools, _poolParent);
-                }
-                else
-                {
-                    if (poolDatum.ClassType != null)
-                        CreatePool(poolDatum, typeof(PurePool<>), _purePools);
-                }
-            }
+	        foreach (PoolDatum poolDatum in _config.PoolData)
+		        CreatePool(poolDatum, poolDatum.IsMono ? typeof(MonoPool<>) : typeof(PurePool<>),
+			        poolDatum.IsMono ? _monoPools : _purePools);
         }
         private void CreatePool(PoolDatum poolDatum, Type poolBaseType, Dictionary<Type, object> poolDictionary,
 	        Transform parent = null)
@@ -188,5 +178,51 @@ namespace CodeCatGames.HMPool.Runtime
 			}
 		}
         #endregion
+    }
+    
+    public class TestOne : PurePoolable
+    {
+	    public override void OnCreated()
+	    {
+		    throw new NotImplementedException();
+	    }
+
+	    public override void OnGetFromPool()
+	    {
+		    throw new NotImplementedException();
+	    }
+
+	    public override void OnReturnToPool()
+	    {
+		    throw new NotImplementedException();
+	    }
+
+	    public override void OnDestroyed()
+	    {
+		    throw new NotImplementedException();
+	    }
+    }
+    
+    public class TestTwo : MonoPoolable
+    {
+	    public override void OnCreated()
+	    {
+		    throw new NotImplementedException();
+	    }
+
+	    public override void OnGetFromPool()
+	    {
+		    throw new NotImplementedException();
+	    }
+
+	    public override void OnReturnToPool()
+	    {
+		    throw new NotImplementedException();
+	    }
+
+	    public override void OnDestroyed()
+	    {
+		    throw new NotImplementedException();
+	    }
     }
 }

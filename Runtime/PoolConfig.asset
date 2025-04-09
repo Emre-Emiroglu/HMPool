@@ -12,4 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03b83f9a8d63465cb1c815d2079d5f22, type: 3}
   m_Name: PoolConfig
   m_EditorClassIdentifier: 
-  poolData: []
+  poolData:
+  - isMono: 0
+    monoPrefab: {fileID: 0}
+    classTypeName: CodeCatGames.HMPool.Runtime.TestTwo, CodeCatGames.HMPool.Runtime,
+      Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    initialSize: 0
+    defaultCapacity: 0
+    maximumSize: 0

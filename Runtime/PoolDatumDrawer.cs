@@ -51,23 +51,21 @@ namespace CodeCatGames.HMPool.Runtime
                 
                 y += monoPrefabHeight + 2;
             }
-            else
+            
+            if (_typeNames.Length > 0)
             {
-                if (_typeNames.Length > 0)
-                {
-                    int newIndex =
-                        EditorGUI.Popup(new Rect(position.x, y, position.width, EditorGUIUtility.singleLineHeight),
-                            "ClassType", _selectedIndex, _displayNames);
+                int newIndex =
+                    EditorGUI.Popup(new Rect(position.x, y, position.width, EditorGUIUtility.singleLineHeight),
+                        "ClassType", _selectedIndex, _displayNames);
     
-                    if (EditorGUI.EndChangeCheck())
-                    {
-                        _selectedIndex = newIndex;
+                if (EditorGUI.EndChangeCheck())
+                {
+                    _selectedIndex = newIndex;
                         
-                        classTypeNameProp.stringValue = _typeNames[_selectedIndex];
-                    }
-                
-                    y += EditorGUIUtility.singleLineHeight + 2;
+                    classTypeNameProp.stringValue = _typeNames[_selectedIndex];
                 }
+                
+                y += EditorGUIUtility.singleLineHeight + 2;
             }
 
             string[] fieldNames = { "initialSize", "defaultCapacity", "maximumSize" };
@@ -105,7 +103,7 @@ namespace CodeCatGames.HMPool.Runtime
 
             string[] fieldNames = { "initialSize", "defaultCapacity", "maximumSize" };
             height += fieldNames.Select(property.FindPropertyRelative)
-                .Select(prop => EditorGUI.GetPropertyHeight(prop) + 2).Sum();
+                .Select(prop => EditorGUI.GetPropertyHeight(prop) + 8).Sum();
 
             return height;
         }
