@@ -23,6 +23,11 @@ namespace CodeCatGames.HMPool.Runtime
         #endregion
 
         #region Executes
+        public void Initialize()
+        {
+	        CreateDontDestroyOnLoadParent();
+	        InitializePools();
+        }
         private void CreateDontDestroyOnLoadParent()
         {
             _poolParent = new GameObject("PoolParent").transform;
@@ -36,7 +41,7 @@ namespace CodeCatGames.HMPool.Runtime
                 if (poolDatum.IsMono)
                 {
                     if (poolDatum.MonoPrefab)
-                        CreatePool(poolDatum, typeof(MonoPool<>), _monoPools);
+                        CreatePool(poolDatum, typeof(MonoPool<>), _monoPools, _poolParent);
                 }
                 else
                 {
@@ -45,115 +50,142 @@ namespace CodeCatGames.HMPool.Runtime
                 }
             }
         }
-        private void CreatePool(PoolDatum poolDatum, Type poolBaseType, Dictionary<Type, object> poolDictionary)
+        private void CreatePool(PoolDatum poolDatum, Type poolBaseType, Dictionary<Type, object> poolDictionary,
+	        Transform parent = null)
         {
-            Type poolType = poolBaseType.MakeGenericType(poolDatum.ClassType);
+	        Type poolType = poolBaseType.MakeGenericType(poolDatum.ClassType);
 
-            object pool = Activator.CreateInstance(poolType, poolDatum);
-            
-            poolDictionary[poolDatum.ClassType] = pool;
+	        object[] parameters = parent != null ? new object[] { poolDatum, parent } : new object[] { poolDatum };
+
+	        object pool = Activator.CreateInstance(poolType, parameters);
+    
+	        poolDictionary[poolDatum.ClassType] = pool;
         }
         public T GetMono<T>() where T : MonoBehaviour, IPoolable
 		{
 			if (!_monoPools.TryGetValue(typeof(T), out object poolObj))
-				throw new InvalidOperationException($"No pool found for type {typeof(T)}.");
+				PoolServiceUtilities.ThrowNoPoolFoundException<T>();
 			
 			MonoPool<T> pool = poolObj as MonoPool<T>;
 			
 			Assert.IsNotNull(pool, "Pool object is null.");
 
 			return pool.Get();
-
 		}
 		public T GetPure<T>() where T : class, IPoolable
 		{
 			if (!_purePools.TryGetValue(typeof(T), out object poolObj))
-				throw new InvalidOperationException($"No pool found for type {typeof(T)}.");
+				PoolServiceUtilities.ThrowNoPoolFoundException<T>();
 			
-			PurePool<T> purePool = poolObj as PurePool<T>;
+			PurePool<T> pool = poolObj as PurePool<T>;
 			
-			Assert.IsNotNull(purePool, "Pool object is null.");
-			
-			return purePool.Get();
+			Assert.IsNotNull(pool, "Pool object is null.");
 
+			return pool.Get();
 		}
 		public void ReleaseMono<T>(T obj) where T : MonoBehaviour, IPoolable
 		{
-			if (_monoPools.TryGetValue(typeof(T), out object poolObj))
+			if (!_monoPools.TryGetValue(typeof(T), out object poolObj))
+				PoolServiceUtilities.LogNoPoolFoundError<T>();
+			else
 			{
 				MonoPool<T> pool = poolObj as MonoPool<T>;
-				
+
 				Assert.IsNotNull(pool, "Pool object is null.");
 
 				pool.Release(obj);
 			}
-			else
-				Debug.LogError($"No pool found for type {typeof(T)}.");
 		}
 		public void ReleasePure<T>(T obj) where T : class, IPoolable
 		{
-			if (_purePools.TryGetValue(typeof(T), out object poolObj))
-			{
-				PurePool<T> purePool = poolObj as PurePool<T>;
-				
-				Assert.IsNotNull(purePool, "Pool object is null.");
-
-				purePool.Release(obj);
-			}
+			if (!_purePools.TryGetValue(typeof(T), out object poolObj))
+				PoolServiceUtilities.LogNoPoolFoundError<T>();
 			else
-				Debug.LogError($"No pool found for type {typeof(T)}.");
+			{
+				PurePool<T> pool = poolObj as PurePool<T>;
+
+				Assert.IsNotNull(pool, "Pool object is null.");
+
+				pool.Release(obj);
+			}
 		}
-		public void ReleaseAllMono<T>() where T : MonoBehaviour, IPoolable
+		public void DestroyMono<T>(T obj) where T : MonoBehaviour, IPoolable
 		{
-			if (_monoPools.TryGetValue(typeof(T), out object poolObj))
+			if (!_monoPools.TryGetValue(typeof(T), out object poolObj))
+				PoolServiceUtilities.LogNoPoolFoundError<T>();
+			else
 			{
 				MonoPool<T> pool = poolObj as MonoPool<T>;
 				
+				Assert.IsNotNull(pool, "Pool object is null.");
+				
+				pool.Destroy(obj);
+			}
+		}
+		public void DestroyPure<T>(T obj) where T : class, IPoolable
+		{
+			if (!_purePools.TryGetValue(typeof(T), out object poolObj))
+				PoolServiceUtilities.LogNoPoolFoundError<T>();
+			else
+			{
+				PurePool<T> pool = poolObj as PurePool<T>;
+				
+				Assert.IsNotNull(pool, "Pool object is null.");
+				
+				pool.Destroy(obj);
+			}
+		}
+		public void ReleaseAllMono<T>() where T : MonoBehaviour, IPoolable
+		{
+			if (!_monoPools.TryGetValue(typeof(T), out object poolObj))
+				PoolServiceUtilities.LogNoPoolFoundError<T>();
+			else
+			{
+				MonoPool<T> pool = poolObj as MonoPool<T>;
+
 				Assert.IsNotNull(pool, "Pool object is null.");
 
 				pool.ReleaseAll();
 			}
-			else
-				Debug.LogError($"No pool found for type {typeof(T)}.");
 		}
 		public void ReleaseAllPure<T>() where T : class, IPoolable
 		{
-			if (_purePools.TryGetValue(typeof(T), out object poolObj))
-			{
-				PurePool<T> purePool = poolObj as PurePool<T>;
-				
-				Assert.IsNotNull(purePool, "Pool object is null.");
-
-				purePool.ReleaseAll();
-			}
+			if (!_purePools.TryGetValue(typeof(T), out object poolObj))
+				PoolServiceUtilities.LogNoPoolFoundError<T>();
 			else
-				Debug.LogError($"No pool found for type {typeof(T)}.");
+			{
+				PurePool<T> pool = poolObj as PurePool<T>;
+
+				Assert.IsNotNull(pool, "Pool object is null.");
+
+				pool.ReleaseAll();
+			}
 		}
 		public void DestroyAllMono<T>() where T : MonoBehaviour, IPoolable
 		{
-			if (_monoPools.TryGetValue(typeof(T), out object poolObj))
+			if (!_monoPools.TryGetValue(typeof(T), out object poolObj))
+				PoolServiceUtilities.LogNoPoolFoundError<T>();
+			else
 			{
 				MonoPool<T> pool = poolObj as MonoPool<T>;
-				
+
 				Assert.IsNotNull(pool, "Pool object is null.");
 
 				pool.DestroyAll();
 			}
-			else
-				Debug.LogError($"No pool found for type {typeof(T)}.");
 		}
 		public void DestroyAllPure<T>() where T : class, IPoolable
 		{
-			if (_purePools.TryGetValue(typeof(T), out object poolObj))
-			{
-				PurePool<T> purePool = poolObj as PurePool<T>;
-				
-				Assert.IsNotNull(purePool, "Pool object is null.");
-
-				purePool.DestroyAll();
-			}
+			if (!_purePools.TryGetValue(typeof(T), out object poolObj))
+				PoolServiceUtilities.LogNoPoolFoundError<T>();
 			else
-				Debug.LogError($"No pool found for type {typeof(T)}.");
+			{
+				PurePool<T> pool = poolObj as PurePool<T>;
+
+				Assert.IsNotNull(pool, "Pool object is null.");
+
+				pool.DestroyAll();
+			}
 		}
         #endregion
     }

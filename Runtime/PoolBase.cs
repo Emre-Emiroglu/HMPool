@@ -9,7 +9,7 @@ namespace CodeCatGames.HMPool.Runtime
         #region ReadonlyFields
         protected readonly PoolDatum PoolDatum;
         private readonly ObjectPool<T> _pool;
-        private readonly List<T> _initialObjectList = new();
+        private readonly List<T> _initialObjects = new();
         private readonly HashSet<T> _activeObjects = new();
         private readonly HashSet<T> _releasedObjects = new();
         #endregion
@@ -18,31 +18,29 @@ namespace CodeCatGames.HMPool.Runtime
         public PoolBase(PoolDatum poolDatum)
         {
             PoolDatum = poolDatum;
+            
             _pool = new ObjectPool<T>(CreateObject, GetFromPool, ReturnToPool, DestroyObject, true,
                 poolDatum.DefaultCapacity, poolDatum.MaximumSize);
         }
         #endregion
 
-        #region Core
+        #region Executes
         protected abstract T CreateObject();
         protected abstract void GetFromPool(T obj);
         protected abstract void ReturnToPool(T obj);
         protected abstract void DestroyObject(T obj);
-        #endregion
-
-        #region Executes
         protected void InstantiateDefaultObjects()
         {
             for (int i = 0; i < PoolDatum.InitialSize; i++)
             {
                 T obj = _pool.Get();
                 
-                _initialObjectList.Add(obj);
+                _initialObjects.Add(obj);
             }
             
-            _initialObjectList.ForEach(Release);
+            _initialObjects.ForEach(Release);
             
-            _initialObjectList.Clear();
+            _initialObjects.Clear();
         }
         internal T Get()
         {
@@ -66,13 +64,29 @@ namespace CodeCatGames.HMPool.Runtime
             
             _releasedObjects.Add(obj);
         }
+        internal void Destroy(T obj)
+        {
+            if (_activeObjects.Contains(obj))
+                _activeObjects.Remove(obj);
+    
+            if (_releasedObjects.Contains(obj))
+                _releasedObjects.Remove(obj);
+
+            DestroyObject(obj);
+        }
         internal void ReleaseAll()
         {
             HashSet<T> activeObjects = new(_activeObjects);
             
             activeObjects.ToList().ForEach(Release);
         }
-        internal void DestroyAll() => _pool.Clear();
+        internal void DestroyAll()
+        {
+            _activeObjects.Clear();
+            _releasedObjects.Clear();
+            
+            _pool.Clear();
+        }
         #endregion
     }
 }

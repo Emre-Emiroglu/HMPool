@@ -4,14 +4,23 @@ namespace CodeCatGames.HMPool.Runtime
 {
     public sealed class MonoPool<T> : PoolBase<T> where T : MonoBehaviour, IPoolable
     {
+        #region ReadonlyFields
+        private readonly Transform _parent;
+        #endregion
+        
         #region Constructor
-        public MonoPool(PoolDatum poolDatum) : base(poolDatum) => InstantiateDefaultObjects();
+        public MonoPool(PoolDatum poolDatum, Transform parent) : base(poolDatum)
+        {
+            _parent = parent;
+
+            InstantiateDefaultObjects();
+        }
         #endregion
 
         #region Core
         protected override T CreateObject()
         {
-            T obj = Object.Instantiate(PoolDatum.MonoPrefab).GetComponent<T>();
+            T obj = Object.Instantiate(PoolDatum.MonoPrefab, _parent).GetComponent<T>();
             
             obj.OnCreated();
 			
