@@ -1,6 +1,6 @@
 {
   "name": "com.codecatgames.hmpool",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "HMPool",
   "description": "HMPool provides a modular object pool system for Unity, creating and managing pools for MonoBehaviour and pure C# classes.",
   "author": {
