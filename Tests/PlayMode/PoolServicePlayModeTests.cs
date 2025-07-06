@@ -1,10 +1,10 @@
 ﻿using System.Collections;
-using CodeCatGames.HMPool.Runtime;
+using HMPool.Runtime;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace CodeCatGames.HMPool.Tests.PlayMode
+namespace HMPool.Tests.PlayMode
 {
     public sealed class PoolServicePlayModeTests
     {

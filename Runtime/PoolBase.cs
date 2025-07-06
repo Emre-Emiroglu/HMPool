@@ -2,7 +2,7 @@
 using System.Linq;
 using UnityEngine.Pool;
 
-namespace CodeCatGames.HMPool.Runtime
+namespace HMPool.Runtime
 {
     /// <summary>
     /// A base class for pooling objects of type T. This class manages the object pool, handles object creation, 

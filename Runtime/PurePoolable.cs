@@ -1,4 +1,4 @@
-﻿namespace CodeCatGames.HMPool.Runtime
+﻿namespace HMPool.Runtime
 {
     /// <summary>
     /// Abstract class to be inherited by non-MonoBehaviour-based poolable objects.

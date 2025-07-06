@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace CodeCatGames.HMPool.Runtime
+namespace HMPool.Runtime
 {
     /// <summary>
     /// Abstract class to be inherited by MonoBehaviour-based poolable objects.

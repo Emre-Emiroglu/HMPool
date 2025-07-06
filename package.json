@@ -1,10 +1,10 @@
 {
-  "name": "com.codecatgames.hmpool",
-  "version": "1.0.1",
+  "name": "com.emreemiroglu.hmpool",
+  "version": "1.0.0",
   "displayName": "HMPool",
   "description": "HMPool provides a modular object pool system for Unity, creating and managing pools for MonoBehaviour and pure C# classes.",
   "author": {
-    "name": "Code Cat Games",
+    "name": "Emre Emiroglu",
     "email": "emirogluemre08@gmail.com",
     "url": "https://github.com/Emre-Emiroglu"
   },

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace CodeCatGames.HMPool.Runtime
+namespace HMPool.Runtime
 {
 	/// <summary>
 	/// The PoolServiceUtilities class provides static methods for interacting with the PoolService.

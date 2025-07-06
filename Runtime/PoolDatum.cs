@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace CodeCatGames.HMPool.Runtime
+namespace HMPool.Runtime
 {
     /// <summary>
     /// PoolDatum defines the configuration for a single object pool.

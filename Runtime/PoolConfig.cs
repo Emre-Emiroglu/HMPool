@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace CodeCatGames.HMPool.Runtime
+namespace HMPool.Runtime
 {
     /// <summary>
     /// PoolConfig is a ScriptableObject that holds configuration data for object pools.

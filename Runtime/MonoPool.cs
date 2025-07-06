@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace CodeCatGames.HMPool.Runtime
+namespace HMPool.Runtime
 {
     /// <summary>
     /// A pool that manages MonoBehaviour-based objects, providing methods to create, retrieve, return, and destroy them.

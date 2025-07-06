@@ -1,6 +1,6 @@
 {
-    "name": "CodeCatGames.HMPool.Runtime",
-    "rootNamespace": "CodeCatGames.HMPool.Runtime",
+    "name": "HMPool.Runtime",
+    "rootNamespace": "HMPool.Runtime",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
